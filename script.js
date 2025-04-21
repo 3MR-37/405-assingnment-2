@@ -1,31 +1,46 @@
-document.getElementById("searchButton").addEventListener("click", () => {
-    const query = document.getElementById("searchInput").value;
-    const resultsDiv = document.getElementById("results");
-  
-    resultsDiv.innerHTML = "Loading...";
-  
-    fetch(`https://universities.hipolabs.com/search?name=${query}`)
-      .then(response => response.json())
-      .then(data => {
-        resultsDiv.innerHTML = "";
-        if (data.length === 0) {
-          resultsDiv.innerHTML = "No universities found.";
-          return;
-        }
-  
-        data.forEach(university => {
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <strong>${university.name}</strong><br>
-            Country: ${university.country}<br>
-            <a href="${university.web_pages[0]}" target="_blank">Visit Website</a>
-          `;
-          resultsDiv.appendChild(card);
+document.getElementById('searchBtn').addEventListener('click', function () {
+    const query = document.getElementById('searchInput').value.trim();
+
+    if (!query) {
+        alert('Please enter a university name.');
+        return;
+    }
+
+    const url = 'http://universities.hipolabs.com/search?name=' + encodeURIComponent(query);
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+
+    fetch(proxyUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const universities = JSON.parse(data.contents);
+            const resultDiv = document.getElementById('results');
+            resultDiv.innerHTML = '';
+
+            if (universities.length === 0) {
+                resultDiv.textContent = 'No universities found.';
+                return;
+            }
+
+            universities.forEach(university => {
+                const uniDiv = document.createElement('div');
+                uniDiv.classList.add('university');
+
+                uniDiv.innerHTML = `
+                    <h3>${university.name}</h3>
+                    <p><strong>Country:</strong> ${university.country}</p>
+                    <p><strong>Website:</strong> <a href="${university.web_pages[0]}" target="_blank">${university.web_pages[0]}</a></p>
+                `;
+
+                resultDiv.appendChild(uniDiv);
+            });
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            document.getElementById('results').textContent = 'An error occurred while fetching data.';
         });
-      })
-      .catch(error => {
-        resultsDiv.innerHTML = "An error occurred. Please try again.";
-        console.error(error);
-      });
-  });
+});
