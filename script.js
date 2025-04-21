@@ -4,7 +4,7 @@ document.getElementById("searchButton").addEventListener("click", () => {
   
     resultsDiv.innerHTML = "Loading...";
   
-    fetch(`http://universities.hipolabs.com/search?name=${query}`)
+    fetch(`https://universities.hipolabs.com/search?name=${query}`)
       .then(response => response.json())
       .then(data => {
         resultsDiv.innerHTML = "";
